@@ -1,0 +1,14 @@
+services:
+  cryptext-backend:
+    build:
+      context: .
+    container_name: cryptext-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - reverse_proxy
+
+networks:
+  reverse_proxy:
+    external: true
