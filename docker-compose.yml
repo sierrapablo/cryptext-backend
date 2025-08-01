@@ -6,9 +6,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    ports:
+      - "8000:8000"
     networks:
-      - reverse_proxy
+      - reverse-proxy
 
 networks:
-  reverse_proxy:
+  reverse-proxy:
     external: true

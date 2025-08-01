@@ -18,9 +18,9 @@ fernet = Fernet(os.getenv('SECRET_KEY').encode())
 async def create_note(
     note: NoteCreate, session: AsyncSession = Depends(get_session)
 ):
-    encrypted = fernet.encrypt(note.content.encode()).decode()
+    encrypted = fernet.encrypt(note.encrypted_content.encode()).decode()
     expires_at = datetime.utcnow() + timedelta(hours=1)
-    new_note = Note(content=encrypted, expires_at=expires_at,
+    new_note = Note(encrypted_content=encrypted, expires_at=expires_at,
                     read_once=note.read_once)
     session.add(new_note)
     await session.commit()
