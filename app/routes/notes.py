@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from cryptography.fernet import Fernet
 import os
 
@@ -18,9 +18,9 @@ fernet = Fernet(os.getenv('SECRET_KEY').encode())
 async def create_note(
     note: NoteCreate, session: AsyncSession = Depends(get_session)
 ):
-    encrypted = fernet.encrypt(note.content.encode()).decode()
-    expires_at = datetime.utcnow() + timedelta(hours=1)
-    new_note = Note(content=encrypted, expires_at=expires_at,
+    encrypted = fernet.encrypt(note.encrypted_content.encode()).decode()
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    new_note = Note(encrypted_content=encrypted, expires_at=expires_at,
                     read_once=note.read_once)
     session.add(new_note)
     await session.commit()
@@ -36,7 +36,7 @@ async def get_note(
     note = result.scalar_one_or_none()
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
-    if note.expires_at < datetime.utcnow():
+    if note.expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=404, detail="Note expired")
     content = fernet.decrypt(note.encrypted_content.encode()).decode()
     if note.read_once:
