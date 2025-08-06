@@ -19,7 +19,11 @@ async def create_note(
     note: NoteCreate, session: AsyncSession = Depends(get_session)
 ):
     encrypted = fernet.encrypt(note.encrypted_content.encode()).decode()
+<<<<<<< HEAD
     expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+=======
+    expires_at = datetime.utcnow() + timedelta(hours=1)
+>>>>>>> 33ccd5c757eb5105c2822fc26774877895ee8caf
     new_note = Note(encrypted_content=encrypted, expires_at=expires_at,
                     read_once=note.read_once)
     session.add(new_note)
